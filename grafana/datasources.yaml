@@ -1,0 +1,7 @@
+apiversion: 1
+datasources:
+#grafana's name
+- name: Main
+  type: prometheus
+  url: http://prometheus:9090
+  isDefault: true

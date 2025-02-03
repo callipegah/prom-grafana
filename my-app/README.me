@@ -1,0 +1,43 @@
+# My App - Device Management System
+
+This is a Go-based application that manages connected devices and exposes Prometheus metrics for monitoring. It provides RESTful APIs to list, create, and upgrade devices, as well as a login endpoint. It also exposes Prometheus metrics on a separate port.
+
+## Features
+1. **Device Management**:
+   - List all connected devices (`GET /devices`).
+   - Add a new device (`POST /devices`).
+   - Upgrade a device's firmware (`PUT /devices/{id}`).
+
+2. **Login**:
+   - Simulate a login request (`GET /login`).
+
+3. **Prometheus Metrics**:
+   - Exposes metrics at `/metrics` on port `8081`.
+
+## Metrics
+The application exposes the following Prometheus metrics:
+- `myapp_connected_devices`: Number of currently connected devices.
+- `myapp_info`: Information about the application version.
+- `myapp_device_upgrade_total`: Number of device upgrades.
+- `myapp_request_duration_seconds`: Duration of HTTP requests.
+- `myapp_login_request_duration_seconds`: Duration of login requests.
+
+## Endpoints
+- **Device Endpoints**:
+  - `GET /devices`: List all devices.
+  - `POST /devices`: Add a new device.
+  - `PUT /devices/{id}`: Upgrade a device's firmware.
+
+- **Login Endpoint**:
+  - `GET /login`: Simulate a login request.
+
+- **Metrics Endpoint**:
+  - `GET /metrics`: Expose Prometheus metrics.
+
+## How to Run
+1. Ensure Go is installed on your system.
+2. Clone the repository.
+3. Run the following commands:
+   ```bash
+   go mod tidy
+   go run main.go
