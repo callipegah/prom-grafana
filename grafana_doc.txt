@@ -1,0 +1,43 @@
+* gauge:
+
+datasource: Main(prometheus name)
+Query > metrics > code-lable> metrics browser > myapp_connected_devices
+
+time series> 
+-legend to table and placemnet to right
+-values : last*
+-graph styles : line width :2 and fill capacity : 50
+-gardinet mode: opacity
+-connect null values: always
+- unit : short
+-decimal: 0
+
+
+
+* counter:
+
+curl -X PUT -d "{\"firmware\":\"4.6.6\"}" http://localhost:8080/devices/1
+
+Query > metrics > code-lable> metrics browser > rate(myapp_device_upgrade_total[1m])
+options > legend> custom > {{type}}
+unit : rps: requests per second
+   
+
+
+* histogram: 
+
+overload for seeing more result: 1..100000 | ForEach-Object { Invoke-WebRequest -Uri "http://localhost:8080/devices" -Method GET }
+
+histogram_quantile(0.99,sum(rate(myapp_request_duration_seconds_bucket[1m])) by (le))
+
+The sum() function aggregates the rates across all instances or labels (e.g., if your application runs multiple instances).
+The by (le) groups the results by the le label, which represents the bucket boundaries   
+
+Step 1: Calculate the per-second rate of increase for each histogram bucket over the last 1 minute.
+rate(myapp_request_duration_seconds_bucket[1m])
+
+Step 2: Sum the rates across all instances, grouped by the le label.
+sum(rate(myapp_request_duration_seconds_bucket[1m])) by (le)
+
+Step 3: Compute the 99th percentile from the aggregated histogram data.
+histogram_quantile(0.99, sum(rate(myapp_request_duration_seconds_bucket[1m])) by (le))
