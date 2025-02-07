@@ -1,21 +1,38 @@
+---
 global:
   scrape_interval: 5s
   evaluation_interval: 5s
 
-
-
-
 alerting:
-
-
 
 rule_files:
 
 scrape_configs:
 - job_name: myapp
   static_configs:
-  - targets:["myapp:8081"]
-
-
-  # we dont need to specify metrics path beacuse it is default
+  - targets: ["myapp:8081"]
   
+
+
+# we dont need to specify metrics path beacuse it is default
+# targets:["myapp:8081"] if u didnt use dockerfile to build project so u should write localhost and not ur project name
+
+# What Happens Without This Configuration?
+# Prometheus won’t know where your application is running or how to scrape metrics from it.
+# Your metrics won’t be collected, and you won’t be able to monitor your application.
+
+# How Does This Work with Your Go Code?
+# Your Go Code:
+
+# You’ve used the Prometheus library to define and expose metrics (e.g., myapp_connected_devices, myapp_info, etc.).
+
+# You’ve started an HTTP server on port 8081 to expose these metrics on the /metrics endpoint.
+
+# Prometheus Configuration:
+
+# The YAML file tells Prometheus to scrape metrics from myapp:8081 (your Go application).
+
+# Prometheus Scraping:
+
+# Prometheus will periodically (every 5 seconds, as per scrape_interval) send HTTP requests to http://myapp:8081/metrics to collect the metrics exposed by your Go application.
+

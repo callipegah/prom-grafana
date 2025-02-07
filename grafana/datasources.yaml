@@ -1,7 +1,16 @@
 apiversion: 1
 datasources:
-#grafana's name
 - name: Main
   type: prometheus
   url: http://prometheus:9090
   isDefault: true
+
+
+
+#grafana's name is Main and use url in port 9090
+# http://prometheus:9090?
+# This is the service name of the Prometheus container in your Docker Compose setup.
+# Docker Compose automatically creates a DNS entry for each service in the internal Docker network.
+# When Grafana runs in the same Docker network, it can resolve prometheus to the IP address of the Prometheus container
+# Why Not http://localhost:9090?
+# localhost refers to the host machine, not the Docker network

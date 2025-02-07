@@ -27,3 +27,26 @@ services:
 
 volumes:
   grafana:
+
+
+
+
+# Port 8081:
+# Used by your Go application to expose Prometheus metrics.
+# Prometheus scrapes metrics from this port.
+
+# Port 9090:
+# Used by Prometheus to expose its web interface.
+# You use this port to access the Prometheus UI and monitor your application
+
+
+# volumes:
+# - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+# - grafana:/var/lib/grafana
+# This line uses a named Docker volume (grafana) to persist Grafana's internal data (e.g., dashboards, users) across container restarts or deletions
+
+# Data Persistence: Any data written by Grafana to /var/lib/grafana (e.g., dashboards, users) is stored in this named volume on the host machine14. This means that even if you stop or delete the container,
+# all saved configurations remain intact because they are stored outside of the container itself.
+
+# Volume Management: Named volumes are managed by Docker and can be easily backed up or migrated compared to bind mounts4. 
+#They also work well for sharing data between multiple containers.

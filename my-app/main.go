@@ -22,6 +22,10 @@ type Device struct {
 
 // metrics defines the Prometheus metrics used in the application.
 type metrics struct {
+//The use of pointers (*) or non-pointers in the metrics struct depends on how the Prometheus client library implements these types:
+//Non-pointer types (prometheus.Gauge, prometheus.Summary): Used for simple metrics.
+//Pointer types (*prometheus.GaugeVec, *prometheus.CounterVec, etc.): Used for complex metrics that manage multiple labeled metrics
+
 	devices       prometheus.Gauge         // Gauge to track the number of connected devices
 	info          *prometheus.GaugeVec     // GaugeVec to track application version information
 	upgrades      *prometheus.CounterVec   // CounterVec to track the number of device upgrades
@@ -32,7 +36,7 @@ type metrics struct {
 // NewMetrics initializes and registers Prometheus metrics.
 func NewMetrics(reg prometheus.Registerer) *metrics {
 	m := &metrics{
-		devices: prometheus.NewGauge(prometheus.GaugeOpts{
+		devices: prometheus.NewGauge(prometheus.GaugeOpts{ //GaugeOpts is a struct in the Prometheus
 			Namespace: "myapp",              // Metric namespace
 			Name:      "connected_devices",  // Metric name
 			Help:      "Number of currently connected devices.", // Metric description
@@ -46,7 +50,7 @@ func NewMetrics(reg prometheus.Registerer) *metrics {
 			Namespace: "myapp",
 			Name:      "device_upgrade_total",
 			Help:      "Number of upgraded devices.",
-		}, []string{"type"}), // Label for upgrade type
+		}, []string{"type"}), // to findout how many of each device type has been upgraded
 		duration: prometheus.NewHistogramVec(prometheus.HistogramOpts{
 			Namespace: "myapp",
 			Name:      "request_duration_seconds",
@@ -86,9 +90,13 @@ func main() {
 
 	m.devices.Set(float64(len(dvs))) // Set the initial number of connected devices
 	m.info.With(prometheus.Labels{"version": version}).Set(1) // Set version info metric
+	// With is a method provided by prometheus.GaugeVec to select or create a specific labeled instance of the Gauge metric.
+	// takes a prometheus.Labels map, where:The key is the label name ("version").
+	// Set(1) sets the value of the Gauge metric to 1.
+
 
 	// Create a new ServeMux for device-related endpoints
-	dMux := http.NewServeMux()
+	dMux := http.NewServeMux()//servermux: hhtp request multiplexser:It allows you to define multiple routes (endpoints) in your application, each with its own handler.
 	rdh := registerDevicesHandler{metrics: m} // Handler for device registration
 	mdh := manageDevicesHandler{metrics: m}  // Handler for device management
 
@@ -123,7 +131,12 @@ type registerDevicesHandler struct {
 	metrics *metrics
 }
 
+// first this below func has its own name but beacuse of its functionality that it serve http requests
+// we use servehttp that is predifed interface of http requests and it is our interface that is defined in http lib so we didnt need to 
+//define it as interface 
 // ServeHTTP handles HTTP requests for device registration and listing.
+//so serverhttp is our interface and in our functions that inhertince it we should tell it which struct will use in this interface
+
 func (rdh registerDevicesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
@@ -156,7 +169,13 @@ func getDevices(w http.ResponseWriter, r *http.Request, m *metrics) {
 }
 
 // createDevice adds a new device to the list of connected devices.
+// curl -d "{\"id\":4,\"mac\":\"5F-34-CC-1F-43-82\",\"firmware\":\"4.1.6\"}" localhost:8080/devices
+
 func createDevice(w http.ResponseWriter, r *http.Request, m *metrics) {
+// json.NewDecoder(r.Body): Creates a new JSON decoder that reads from the request body.
+// Decode(&dv): Attempts to decode the JSON data from the request bodyThe & is important here; it passes a pointer to dv, so the Decode function can modify the dv variable directly.
+// dvs = append(dvs, dv):Important: This code is not thread-safe! If multiple requests try to create devices concurrently, you'll have race conditions and data corruption. You'll need to use a mutex to protect access to the dvs slice.
+
 	var dv Device
 
 	err := json.NewDecoder(r.Body).Decode(&dv) // Decode JSON request body into a Device struct
